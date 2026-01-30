@@ -82,8 +82,9 @@ export function initRain(): void {
   wetHighCut.Q.value = 0.5
 
   // Resonator bus (sum of all resonators)
+  // Bandpass filters attenuate heavily, so boost the bus significantly
   resonatorBus = ctx.createGain()
-  resonatorBus.gain.value = 1.0
+  resonatorBus.gain.value = 8.0
 
   // === RESONATOR BANK ===
   // Create resonators for each frequency
@@ -348,15 +349,17 @@ export function isRainRunning(): boolean {
  * Higher values make the tonal resonance more audible
  */
 export function setResonatorWetMix(value: number): void {
-  config.resonator.maxWetMix = value
-  // Also bump the base so it's always somewhat audible
-  config.resonator.baseWetMix = value * 0.15
+  // Map 0-1 to a more aggressive range (0-1.5) for audibility
+  const scaledValue = value * 1.5
+  config.resonator.maxWetMix = scaledValue
+  // Keep base at 30% of max so it's always somewhat audible
+  config.resonator.baseWetMix = scaledValue * 0.3
   
   // Apply immediately if running
   if (isRunning && wetGain) {
     const ctx = getAudioContext()
     if (ctx) {
-      wetGain.gain.setTargetAtTime(value, ctx.currentTime, 0.1)
+      wetGain.gain.setTargetAtTime(scaledValue, ctx.currentTime, 0.1)
     }
   }
 }
@@ -366,9 +369,9 @@ export function setResonatorWetMix(value: number): void {
  * Higher values = more ringing/tonal
  */
 export function setResonatorQ(value: number): void {
-  // Map 0-1 to Q range 5-60
-  const q = 5 + value * 55
-  config.resonator.baseQ = q * 0.5
+  // Map 0-1 to Q range 10-100 for more pronounced resonance
+  const q = 10 + value * 90
+  config.resonator.baseQ = q * 0.6
   config.resonator.maxQ = q
   
   // Apply immediately if running

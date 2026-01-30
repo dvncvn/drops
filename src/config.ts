@@ -32,33 +32,34 @@ export const config = {
   // Resonator ("puddle sings") - tonal presence from rain
   resonator: {
     // Wet/dry mix
-    baseWetMix: 0.05,                        // wet mix at baseline intensity
-    maxWetMix: 0.35,                         // wet mix at peak intensity
+    baseWetMix: 0.2,                         // wet mix at baseline intensity
+    maxWetMix: 0.8,                          // wet mix at peak intensity
     
-    // Resonator frequencies (D-A-E voicing across octaves)
+    // Resonator frequencies (D-A-E voicing across octaves, including higher partials)
     frequencies: [
-      73.42,   // D2
       110,     // A2
       146.83,  // D3
-      164.81,  // E3
       220,     // A3
+      293.66,  // D4
+      440,     // A4
+      587.33,  // D5
     ],
     
     // Q (resonance) settings
-    baseQ: 15,                               // Q at baseline
-    maxQ: 35,                                // Q at peak intensity
+    baseQ: 30,                               // Q at baseline
+    maxQ: 60,                                // Q at peak intensity
     
     // Click excitation
-    clickExciteGain: 0.4,                    // extra wet gain on click
-    clickDecayMs: 500,                       // decay time for click excitation
-    clickQBoost: 8,                          // temporary Q increase on click
+    clickExciteGain: 0.6,                    // extra wet gain on click
+    clickDecayMs: 600,                       // decay time for click excitation
+    clickQBoost: 15,                         // temporary Q increase on click
     
     // Wind modulation
-    windDetunePctMax: 1.5,                   // max detune as percentage (±1.5%)
+    windDetunePctMax: 2.0,                   // max detune as percentage (±2%)
     windLfoRateHz: 0.08,                     // how fast wind modulates frequencies
     
     // Safety/limiting
-    wetHighCut: 3500,                        // lowpass on wet path to avoid piercing
+    wetHighCut: 5000,                        // lowpass on wet path to avoid piercing
     compThreshold: -12,                      // compressor threshold on wet bus
   },
   
