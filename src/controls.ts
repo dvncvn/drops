@@ -7,6 +7,7 @@ import { setDitherSize } from './renderer'
 import { setRainVolume, setDropsVolume, 
   setThunderVolume, setCricketsVolume, setWindGustVolume, setDripsVolume 
 } from './audio/engine'
+import { setResonatorWetMix, setResonatorQ } from './audio/rain'
 
 // Theme state
 let currentTheme: 'dark' | 'light' = 'dark'
@@ -31,6 +32,24 @@ export function initControls(): void {
     const value = parseInt(windSlider.value, 10) / 100
     config.windStrength = value
   })
+
+  // Resonance slider (Q / ring amount)
+  const resonanceSlider = document.getElementById('resonance-slider') as HTMLInputElement
+  resonanceSlider.addEventListener('input', () => {
+    const value = parseInt(resonanceSlider.value, 10) / 100
+    setResonatorQ(value)
+  })
+  // Initialize
+  setResonatorQ(parseInt(resonanceSlider.value, 10) / 100)
+
+  // Tone mix slider (wet/dry resonator mix)
+  const toneMixSlider = document.getElementById('tone-mix-slider') as HTMLInputElement
+  toneMixSlider.addEventListener('input', () => {
+    const value = parseInt(toneMixSlider.value, 10) / 100
+    setResonatorWetMix(value)
+  })
+  // Initialize
+  setResonatorWetMix(parseInt(toneMixSlider.value, 10) / 100)
 
   // Dither select
   const ditherSelect = document.getElementById('dither-select') as HTMLSelectElement

@@ -340,3 +340,44 @@ export function stopRain(): void {
 export function isRainRunning(): boolean {
   return isRunning
 }
+
+// === MANUAL CONTROLS ===
+
+/**
+ * Set resonator wet mix (0-1)
+ * Higher values make the tonal resonance more audible
+ */
+export function setResonatorWetMix(value: number): void {
+  config.resonator.maxWetMix = value
+  // Also bump the base so it's always somewhat audible
+  config.resonator.baseWetMix = value * 0.15
+  
+  // Apply immediately if running
+  if (isRunning && wetGain) {
+    const ctx = getAudioContext()
+    if (ctx) {
+      wetGain.gain.setTargetAtTime(value, ctx.currentTime, 0.1)
+    }
+  }
+}
+
+/**
+ * Set resonator Q (resonance amount)
+ * Higher values = more ringing/tonal
+ */
+export function setResonatorQ(value: number): void {
+  // Map 0-1 to Q range 5-60
+  const q = 5 + value * 55
+  config.resonator.baseQ = q * 0.5
+  config.resonator.maxQ = q
+  
+  // Apply immediately if running
+  if (isRunning) {
+    const ctx = getAudioContext()
+    if (ctx) {
+      for (const resonator of resonators) {
+        resonator.Q.setTargetAtTime(q, ctx.currentTime, 0.1)
+      }
+    }
+  }
+}
