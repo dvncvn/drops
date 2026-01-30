@@ -5,7 +5,7 @@
 import { config } from './config'
 import { setDitherSize } from './renderer'
 import { setRainVolume, setDropsVolume, 
-  setThunderVolume, setCricketsVolume, setWindGustVolume, setDripsVolume, setInsectsVolume 
+  setThunderVolume, setCricketsVolume, setWindGustVolume, setDripsVolume 
 } from './audio/engine'
 
 // Theme state
@@ -74,11 +74,6 @@ export function initControls(): void {
   const dripsSlider = document.getElementById('drips-slider') as HTMLInputElement
   dripsSlider.addEventListener('input', () => {
     setDripsVolume(parseInt(dripsSlider.value, 10) / 100)
-  })
-
-  const insectsSlider = document.getElementById('insects-slider') as HTMLInputElement
-  insectsSlider.addEventListener('input', () => {
-    setInsectsVolume(parseInt(insectsSlider.value, 10) / 100)
   })
 
   // Reseed button

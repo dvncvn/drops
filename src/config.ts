@@ -29,12 +29,11 @@ export const config = {
   dripVolume: 0.25,                          // base volume for ambient drip sounds
   dripChance: 0.4,                           // chance to play sound per ambient ripple
   
-  // Ambience volumes (all start at 0 except insects)
+  // Ambience volumes (all start at 0)
   thunderVolume: 0,
   cricketsVolume: 0,
   windGustVolume: 0,
   dripsVolume: 0,
-  insectsVolume: 0.2,
 
   // Performance
   maxDPR: 2,

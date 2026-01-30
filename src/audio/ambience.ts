@@ -4,7 +4,7 @@
  */
 
 import { getAudioContext, getDryNode, getReverbNode,
-  getThunderGain, getCricketsGain, getWindGustGain, getDripsGain, getInsectsGain
+  getThunderGain, getCricketsGain, getWindGustGain, getDripsGain
 } from './engine'
 
 let isRunning = false
@@ -15,9 +15,7 @@ let nextThunderTime = 0
 let nextCricketTime = 0
 let nextDripTime = 0
 
-// Continuous nodes
-let insectOsc: OscillatorNode | null = null
-let insectLFO: OscillatorNode | null = null
+// Continuous nodes (wind only now)
 let windNoise: AudioBufferSourceNode | null = null
 let windLFO: OscillatorNode | null = null
 
@@ -30,7 +28,6 @@ export function initAmbience(): void {
   nextCricketTime = 0
   nextDripTime = 0
   
-  initInsects()
   initWindGust()
   
   // Schedule periodic sounds
@@ -309,54 +306,6 @@ function playDrip(startTime: number): void {
 }
 
 /**
- * Initialize continuous insect drone
- */
-function initInsects(): void {
-  const ctx = getAudioContext()
-  const dry = getDryNode()
-  const reverb = getReverbNode()
-  const insectsVol = getInsectsGain()
-  
-  if (!ctx || !dry || !reverb || !insectsVol) return
-
-  // High frequency sine (3-5kHz)
-  insectOsc = ctx.createOscillator()
-  insectOsc.type = 'sine'
-  insectOsc.frequency.value = 3500 + Math.random() * 1500
-
-  // Slow amplitude pulsing
-  insectLFO = ctx.createOscillator()
-  insectLFO.type = 'sine'
-  insectLFO.frequency.value = 0.3 + Math.random() * 0.4
-
-  const lfoGain = ctx.createGain()
-  lfoGain.gain.value = 0.08
-
-  const baseGain = ctx.createGain()
-  baseGain.gain.value = 0.1
-
-  insectLFO.connect(lfoGain)
-  lfoGain.connect(baseGain.gain)
-
-  insectOsc.connect(baseGain)
-  baseGain.connect(insectsVol)
-
-  // Route to outputs
-  const drySend = ctx.createGain()
-  drySend.gain.value = 0.7
-  const reverbSend = ctx.createGain()
-  reverbSend.gain.value = 0.4
-
-  insectsVol.connect(drySend)
-  insectsVol.connect(reverbSend)
-  drySend.connect(dry)
-  reverbSend.connect(reverb)
-
-  insectOsc.start()
-  insectLFO.start()
-}
-
-/**
  * Stop all ambience
  */
 export function stopAmbience(): void {
@@ -367,17 +316,7 @@ export function stopAmbience(): void {
     schedulerInterval = null
   }
 
-  // Stop continuous sounds
-  if (insectOsc) {
-    insectOsc.stop()
-    insectOsc.disconnect()
-    insectOsc = null
-  }
-  if (insectLFO) {
-    insectLFO.stop()
-    insectLFO.disconnect()
-    insectLFO = null
-  }
+  // Stop continuous sounds (wind only)
   if (windNoise) {
     windNoise.stop()
     windNoise.disconnect()

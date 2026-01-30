@@ -19,7 +19,6 @@ let thunderGain: GainNode | null = null
 let cricketsGain: GainNode | null = null
 let windGustGain: GainNode | null = null
 let dripsGain: GainNode | null = null
-let insectsGain: GainNode | null = null
 
 /**
  * Initialize audio engine (requires user gesture)
@@ -69,9 +68,6 @@ export async function initAudio(): Promise<void> {
   
   dripsGain = audioContext.createGain()
   dripsGain.gain.value = config.dripsVolume
-  
-  insectsGain = audioContext.createGain()
-  insectsGain.gain.value = config.insectsVolume
 }
 
 /**
@@ -202,7 +198,6 @@ export function getThunderGain(): GainNode | null { return thunderGain }
 export function getCricketsGain(): GainNode | null { return cricketsGain }
 export function getWindGustGain(): GainNode | null { return windGustGain }
 export function getDripsGain(): GainNode | null { return dripsGain }
-export function getInsectsGain(): GainNode | null { return insectsGain }
 
 // Ambience volume setters
 export function setThunderVolume(volume: number): void {
@@ -226,11 +221,5 @@ export function setWindGustVolume(volume: number): void {
 export function setDripsVolume(volume: number): void {
   if (dripsGain && audioContext) {
     dripsGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
-  }
-}
-
-export function setInsectsVolume(volume: number): void {
-  if (insectsGain && audioContext) {
-    insectsGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
   }
 }
