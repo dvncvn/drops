@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>drops</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="hidden">
+      <div class="sidebar-header">
+        <span class="sidebar-title">drops</span>
+        <button id="theme-btn" class="theme-btn" title="Toggle theme (t)">◐</button>
+      </div>
+      
+      <div class="control-group">
+        <label class="control-label">intensity</label>
+        <input type="range" id="intensity-slider" min="5" max="50" value="20" />
+      </div>
+      
+      <div class="control-group">
+        <label class="control-label">wind</label>
+        <input type="range" id="wind-slider" min="0" max="100" value="30" />
+      </div>
+      
+      <div class="control-group">
+        <label class="control-label">dither</label>
+        <select id="dither-select">
+          <option value="0">none</option>
+          <option value="4">4px</option>
+          <option value="8" selected>8px</option>
+          <option value="12">12px</option>
+        </select>
+      </div>
+      
+      <div class="control-group">
+        <label class="control-label">volume</label>
+        <input type="range" id="volume-slider" min="0" max="100" value="50" />
+      </div>
+      
+      <div class="control-group">
+        <button id="reseed-btn" class="control-btn">reseed</button>
+      </div>
+      
+      <div class="sidebar-footer">
+        <span class="sidebar-hint">h hide · t theme · r reseed</span>
+      </div>
+    </aside>
+    
+    <div id="intro">
+      <div class="intro-text">drops</div>
+      <div class="intro-hint">click to begin</div>
+    </div>
+    
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
