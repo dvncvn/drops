@@ -9,7 +9,7 @@ export const config = {
   decayRate: 0.4,             // how fast intensity returns to baseline
 
   // Ripples
-  rippleSpawnRate: { min: 3, max: 25 },  // per second based on intensity
+  rippleSpawnRate: { min: 1, max: 8 },  // per second based on intensity (sparse for audio sync)
   rippleLifetime: { min: 2, max: 4 },
   rippleMaxRadius: { min: 50, max: 100 },
   clickRippleScale: 1.8,      // click ripples are larger
@@ -27,7 +27,7 @@ export const config = {
   audioGainRange: { min: 0.02, max: 0.15 },  // rain bed gain range
   rainFilterFreq: { min: 2000, max: 8000 },
   dripVolume: 0.25,                          // base volume for ambient drip sounds
-  dripChance: 0.4,                           // chance to play sound per ambient ripple
+  dripChance: 1.0,                           // 100% - every ripple makes a sound
   
   // Ambience volumes (all start at 0)
   thunderVolume: 0,
