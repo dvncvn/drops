@@ -9,6 +9,7 @@ import { config } from '../config'
 let resonanceQ = 0
 let resonanceMix = 0
 let reverbAmount = 0.2
+let brightness = 0.5  // 0-1, controls lowpass cutoff
 
 export function setDropResonanceQ(value: number): void {
   resonanceQ = value
@@ -20,6 +21,10 @@ export function setDropResonanceMix(value: number): void {
 
 export function setReverbAmount(value: number): void {
   reverbAmount = value
+}
+
+export function setDropBrightness(value: number): void {
+  brightness = value
 }
 
 /**
@@ -71,10 +76,10 @@ export function playDropSound(x: number): void {
   bandpass.frequency.value = 2000 + Math.random() * 1500
   bandpass.Q.value = 1.2
 
-  // Lowpass to soften and push back in mix
+  // Lowpass controlled by brightness slider (800 - 6000 Hz)
   const lowpass = ctx.createBiquadFilter()
   lowpass.type = 'lowpass'
-  lowpass.frequency.value = 2500
+  lowpass.frequency.value = 800 + brightness * 5200
   lowpass.Q.value = 0.7
 
   // Stereo panning with random variation
@@ -248,10 +253,10 @@ export function playDripSound(x: number): void {
   bandpass.frequency.value = 1500 + Math.random() * 2500
   bandpass.Q.value = 0.8 + Math.random() * 1.5
 
-  // Lowpass to soften and push back in mix
+  // Lowpass controlled by brightness slider with random variation
   const lowpass = ctx.createBiquadFilter()
   lowpass.type = 'lowpass'
-  lowpass.frequency.value = 2000 + Math.random() * 1000
+  lowpass.frequency.value = 600 + brightness * 4000 + Math.random() * 500
   lowpass.Q.value = 0.5
 
   // Stereo panning with wide random spread
