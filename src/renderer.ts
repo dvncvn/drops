@@ -93,36 +93,39 @@ export function renderSurface(
   if (surfaceIntensity < 0.01) return
 
   const { fg } = getColors()
-  const pixelSize = 2
-  const spacing = 40  // Distance between wave lines
+  const pixelSize = 4  // Larger pixels for visibility with dithering
+  const spacing = 30  // Closer spacing
   const waveCount = Math.ceil(height / spacing) + 2
 
   ctx.fillStyle = `rgb(${fg.r}, ${fg.g}, ${fg.b})`
 
   // Draw horizontal wave lines
   for (let i = 0; i < waveCount; i++) {
-    const baseY = (i * spacing + surfaceTime * 20) % (height + spacing) - spacing / 2
+    const baseY = (i * spacing + surfaceTime * 15) % (height + spacing) - spacing / 2
     
     // Draw segmented wavy line
-    for (let x = 0; x < width; x += pixelSize * 3) {
+    for (let x = 0; x < width; x += pixelSize * 2) {
       // Use noise for wave shape
-      const noiseVal = noise2D(x * 0.008 + surfaceTime * 0.5, i * 0.5 + surfaceTime * 0.2)
-      const yOffset = noiseVal * 15
+      const noiseVal = noise2D(x * 0.006 + surfaceTime * 0.4, i * 0.5 + surfaceTime * 0.15)
+      const yOffset = noiseVal * 20
       
       // Fade based on noise for broken line effect
-      const fadeNoise = noise2D(x * 0.02 + i * 10, surfaceTime * 0.3)
-      if (fadeNoise < 0.3) continue  // Skip some segments
+      const fadeNoise = noise2D(x * 0.015 + i * 10, surfaceTime * 0.25)
+      if (fadeNoise < 0.2) continue  // Skip fewer segments
       
       const y = baseY + yOffset
       if (y < 0 || y > height) continue
       
-      // Very subtle opacity
-      const opacity = surfaceIntensity * 0.08 * (0.5 + fadeNoise * 0.5)
+      // More visible opacity
+      const opacity = surfaceIntensity * 0.35 * (0.6 + fadeNoise * 0.4)
       ctx.globalAlpha = opacity
       
       const snapX = Math.floor(x / pixelSize) * pixelSize
       const snapY = Math.floor(y / pixelSize) * pixelSize
+      
+      // Draw slightly thicker line (2 pixels tall)
       ctx.fillRect(snapX, snapY, pixelSize, pixelSize)
+      ctx.fillRect(snapX, snapY + pixelSize, pixelSize, pixelSize)
     }
   }
 
