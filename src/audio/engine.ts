@@ -10,6 +10,10 @@ let reverbGain: GainNode | null = null
 let reverbNode: ConvolverNode | null = null
 let dryGain: GainNode | null = null
 
+// Separate gain nodes for rain bed and drop sounds
+let rainGain: GainNode | null = null
+let dropsGain: GainNode | null = null
+
 /**
  * Initialize audio engine (requires user gesture)
  */
@@ -38,6 +42,13 @@ export async function initAudio(): Promise<void> {
 
   reverbGain.connect(reverbNode)
   reverbNode.connect(masterGain)
+
+  // Separate gain nodes for rain bed and drop sounds
+  rainGain = audioContext.createGain()
+  rainGain.gain.value = config.rainVolume
+  
+  dropsGain = audioContext.createGain()
+  dropsGain.gain.value = config.dropsVolume
 }
 
 /**
@@ -128,5 +139,37 @@ export async function resumeAudio(): Promise<void> {
 export function setMasterVolume(volume: number): void {
   if (masterGain && audioContext) {
     masterGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+  }
+}
+
+/**
+ * Get rain gain node (for rain bed to connect to)
+ */
+export function getRainGain(): GainNode | null {
+  return rainGain
+}
+
+/**
+ * Get drops gain node (for drop sounds to connect to)
+ */
+export function getDropsGain(): GainNode | null {
+  return dropsGain
+}
+
+/**
+ * Set rain volume (0-1)
+ */
+export function setRainVolume(volume: number): void {
+  if (rainGain && audioContext) {
+    rainGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+  }
+}
+
+/**
+ * Set drops volume (0-1)
+ */
+export function setDropsVolume(volume: number): void {
+  if (dropsGain && audioContext) {
+    dropsGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
   }
 }

@@ -2,7 +2,7 @@
  * Transient sounds - water drop clicks and drips
  */
 
-import { getAudioContext, getDryNode, getReverbNode } from './engine'
+import { getAudioContext, getDryNode, getReverbNode, getDropsGain } from './engine'
 import { config } from '../config'
 
 /**
@@ -74,16 +74,22 @@ export function playDropSound(x: number): void {
   // Connect to output with panning
   mix.connect(panner)
   
-  // Split to dry and reverb
-  const drySend = ctx.createGain()
-  drySend.gain.value = 0.6
-  const reverbSend = ctx.createGain()
-  reverbSend.gain.value = 0.8 // more reverb on drops
-  
-  panner.connect(drySend)
-  panner.connect(reverbSend)
-  drySend.connect(dry)
-  reverbSend.connect(reverb)
+  // Route through drops volume control
+  const dropsVol = getDropsGain()
+  if (dropsVol) {
+    panner.connect(dropsVol)
+    
+    // Split to dry and reverb
+    const drySend = ctx.createGain()
+    drySend.gain.value = 0.6
+    const reverbSend = ctx.createGain()
+    reverbSend.gain.value = 0.8 // more reverb on drops
+    
+    dropsVol.connect(drySend)
+    dropsVol.connect(reverbSend)
+    drySend.connect(dry)
+    reverbSend.connect(reverb)
+  }
 
   // Start and stop
   source.start(now)
@@ -181,19 +187,25 @@ export function playDripSound(x: number): void {
 
   mix.connect(panner)
   
-  // Variable reverb amount per drop
-  const dryAmount = 0.6 + Math.random() * 0.4
-  const reverbAmount = 0.1 + Math.random() * 0.3
-  
-  const drySend = ctx.createGain()
-  drySend.gain.value = dryAmount
-  const reverbSend = ctx.createGain()
-  reverbSend.gain.value = reverbAmount
-  
-  panner.connect(drySend)
-  panner.connect(reverbSend)
-  drySend.connect(dry)
-  reverbSend.connect(reverb)
+  // Route through drops volume control
+  const dropsVol = getDropsGain()
+  if (dropsVol) {
+    panner.connect(dropsVol)
+    
+    // Variable reverb amount per drop
+    const dryAmount = 0.6 + Math.random() * 0.4
+    const reverbAmount = 0.1 + Math.random() * 0.3
+    
+    const drySend = ctx.createGain()
+    drySend.gain.value = dryAmount
+    const reverbSend = ctx.createGain()
+    reverbSend.gain.value = reverbAmount
+    
+    dropsVol.connect(drySend)
+    dropsVol.connect(reverbSend)
+    drySend.connect(dry)
+    reverbSend.connect(reverb)
+  }
 
   source.start(now)
   source.stop(now + duration + 0.01)

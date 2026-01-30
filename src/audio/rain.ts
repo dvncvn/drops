@@ -2,7 +2,7 @@
  * Rain bed synthesis - filtered noise that responds to intensity
  */
 
-import { getAudioContext, getDryNode, getReverbNode } from './engine'
+import { getAudioContext, getDryNode, getReverbNode, getRainGain } from './engine'
 import { getIntensity } from '../state'
 import { config } from '../config'
 import { lerp } from '../utils'
@@ -52,20 +52,26 @@ export function initRain(): void {
   lfoGain.connect(noiseFilter.frequency)
   windLFO.start()
 
-  // Connect chain: noise -> filter -> filter2 -> gain -> dry/reverb
+  // Connect chain: noise -> filter -> filter2 -> gain -> rainGain -> dry/reverb
   noiseFilter.connect(noiseFilter2)
   noiseFilter2.connect(noiseGain)
   
-  // Split to dry and reverb (kept subtle as background texture)
-  const drySend = ctx.createGain()
-  drySend.gain.value = 0.4
-  const reverbSend = ctx.createGain()
-  reverbSend.gain.value = 0.3
-  
-  noiseGain.connect(drySend)
-  noiseGain.connect(reverbSend)
-  drySend.connect(dry)
-  reverbSend.connect(reverb)
+  // Route through rain volume control
+  const rainVol = getRainGain()
+  if (rainVol) {
+    noiseGain.connect(rainVol)
+    
+    // Split to dry and reverb (kept subtle as background texture)
+    const drySend = ctx.createGain()
+    drySend.gain.value = 0.4
+    const reverbSend = ctx.createGain()
+    reverbSend.gain.value = 0.3
+    
+    rainVol.connect(drySend)
+    rainVol.connect(reverbSend)
+    drySend.connect(dry)
+    reverbSend.connect(reverb)
+  }
 
   // Create and start noise
   startNoiseGenerator(ctx)

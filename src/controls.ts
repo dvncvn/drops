@@ -4,7 +4,7 @@
 
 import { config } from './config'
 import { setDitherSize } from './renderer'
-import { setMasterVolume } from './audio/engine'
+import { setRainVolume, setDropsVolume } from './audio/engine'
 
 // Theme state
 let currentTheme: 'dark' | 'light' = 'dark'
@@ -39,11 +39,18 @@ export function initControls(): void {
   // Initialize dither from default value
   setDitherSize(parseInt(ditherSelect.value, 10))
 
-  // Volume slider
-  const volumeSlider = document.getElementById('volume-slider') as HTMLInputElement
-  volumeSlider.addEventListener('input', () => {
-    const value = parseInt(volumeSlider.value, 10) / 100
-    setMasterVolume(value)
+  // Rain volume slider
+  const rainVolumeSlider = document.getElementById('rain-volume-slider') as HTMLInputElement
+  rainVolumeSlider.addEventListener('input', () => {
+    const value = parseInt(rainVolumeSlider.value, 10) / 100
+    setRainVolume(value)
+  })
+
+  // Drops volume slider
+  const dropsVolumeSlider = document.getElementById('drops-volume-slider') as HTMLInputElement
+  dropsVolumeSlider.addEventListener('input', () => {
+    const value = parseInt(dropsVolumeSlider.value, 10) / 100
+    setDropsVolume(value)
   })
 
   // Reseed button
