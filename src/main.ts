@@ -116,15 +116,24 @@ function reseed() {
   clearRipples()
 }
 
-// Skip intro
-function skipIntro() {
+// Skip intro (optionally spawn first drop at click position)
+function skipIntro(clickX?: number, clickY?: number) {
   if (introComplete) return
   introComplete = true
 
   intro.classList.add('fade-out')
 
-  setTimeout(() => {
-    start()
+  setTimeout(async () => {
+    await start()
+    
+    // Spawn first drop if position provided
+    if (clickX !== undefined && clickY !== undefined) {
+      addImpulse()
+      spawnClickRipple(clickX, clickY)
+      if (isAudioReady()) {
+        playDropSound(clickX / window.innerWidth)
+      }
+    }
   }, 300)
 
   setTimeout(() => {
@@ -135,7 +144,7 @@ function skipIntro() {
 // Event listeners
 canvas.addEventListener('click', (e) => {
   if (!introComplete) {
-    skipIntro()
+    skipIntro(e.clientX, e.clientY)
     return
   }
 
@@ -154,7 +163,9 @@ canvas.addEventListener('click', (e) => {
   }
 })
 
-intro.addEventListener('click', skipIntro)
+intro.addEventListener('click', (e) => {
+  skipIntro(e.clientX, e.clientY)
+})
 
 window.addEventListener('resize', resize)
 
@@ -165,7 +176,8 @@ document.addEventListener('keydown', (e) => {
     case ' ':
       e.preventDefault()
       if (!introComplete) {
-        skipIntro()
+        // Center drop for spacebar
+        skipIntro(window.innerWidth / 2, window.innerHeight / 2)
       } else {
         toggle()
       }
