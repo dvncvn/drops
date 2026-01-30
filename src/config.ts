@@ -24,10 +24,16 @@ export const config = {
   masterVolume: 0.5,
   rainVolume: 0.5,                           // rain bed volume
   dropsVolume: 0.7,                          // drop sounds volume
+  frogVolume: 0.3,                           // frog sounds volume
   audioGainRange: { min: 0.02, max: 0.15 },  // rain bed gain range
   rainFilterFreq: { min: 2000, max: 8000 },
   dripVolume: 0.25,                          // base volume for ambient drip sounds
   dripChance: 0.4,                           // chance to play sound per ambient ripple
+  
+  // Frog
+  frogInterval: { min: 1.5, max: 4 },        // seconds between potential croaks
+  frogCroakChance: 0.6,                      // chance to actually croak each interval
+  frogPitch: { min: 120, max: 280 },         // Hz range for different frog "voices"
 
   // Performance
   maxDPR: 2,

@@ -4,7 +4,7 @@
 
 import { config } from './config'
 import { setDitherSize } from './renderer'
-import { setRainVolume, setDropsVolume } from './audio/engine'
+import { setRainVolume, setDropsVolume, setFrogVolume } from './audio/engine'
 
 // Theme state
 let currentTheme: 'dark' | 'light' = 'dark'
@@ -51,6 +51,13 @@ export function initControls(): void {
   dropsVolumeSlider.addEventListener('input', () => {
     const value = parseInt(dropsVolumeSlider.value, 10) / 100
     setDropsVolume(value)
+  })
+
+  // Frog volume slider
+  const frogVolumeSlider = document.getElementById('frog-volume-slider') as HTMLInputElement
+  frogVolumeSlider.addEventListener('input', () => {
+    const value = parseInt(frogVolumeSlider.value, 10) / 100
+    setFrogVolume(value)
   })
 
   // Reseed button
