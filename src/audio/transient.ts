@@ -36,32 +36,39 @@ export function playDropSound(x: number): void {
   const source = ctx.createBufferSource()
   source.buffer = buffer
 
-  // Very fast envelope for click
+  // Reduced volume envelope for softer click
   const envelope = ctx.createGain()
   envelope.gain.setValueAtTime(0, now)
-  envelope.gain.linearRampToValueAtTime(0.4, now + 0.001) // instant attack
+  envelope.gain.linearRampToValueAtTime(0.15, now + 0.001) // reduced from 0.4
   envelope.gain.exponentialRampToValueAtTime(0.001, now + duration)
 
   // Highpass for click character (remove low end)
   const hipass = ctx.createBiquadFilter()
   hipass.type = 'highpass'
-  hipass.frequency.value = 2000
-  hipass.Q.value = 0.7
+  hipass.frequency.value = 1200
+  hipass.Q.value = 0.5
 
   // Bandpass to focus the click
   const bandpass = ctx.createBiquadFilter()
   bandpass.type = 'bandpass'
-  bandpass.frequency.value = 4000 + Math.random() * 2000
-  bandpass.Q.value = 1.5
+  bandpass.frequency.value = 2000 + Math.random() * 1500
+  bandpass.Q.value = 1.2
+
+  // Lowpass to soften and push back in mix
+  const lowpass = ctx.createBiquadFilter()
+  lowpass.type = 'lowpass'
+  lowpass.frequency.value = 2500
+  lowpass.Q.value = 0.7
 
   // Stereo panning based on click position
   const panner = ctx.createStereoPanner()
   panner.pan.value = (x - 0.5) * 1.4
 
-  // Connect: source -> hipass -> bandpass -> envelope -> panner
+  // Connect: source -> hipass -> bandpass -> lowpass -> envelope -> panner
   source.connect(hipass)
   hipass.connect(bandpass)
-  bandpass.connect(envelope)
+  bandpass.connect(lowpass)
+  lowpass.connect(envelope)
   envelope.connect(panner)
   
   // Route through drops volume control
@@ -99,8 +106,8 @@ export function playDripSound(x: number): void {
 
   const now = ctx.currentTime
   
-  // Randomize volume per drop
-  const volume = config.dripVolume * (0.5 + Math.random() * 1.0)
+  // Reduced volume per drop (halved from before)
+  const volume = config.dripVolume * (0.25 + Math.random() * 0.5)
 
   // Short click duration - 5-20ms
   const duration = 0.005 + Math.random() * 0.015
@@ -127,26 +134,33 @@ export function playDripSound(x: number): void {
   envelope.gain.linearRampToValueAtTime(volume, now + 0.0005)
   envelope.gain.exponentialRampToValueAtTime(0.001, now + duration)
 
-  // Higher highpass for click (1500-5000Hz)
+  // Highpass for click (800-2500Hz) - lowered range
   const hipass = ctx.createBiquadFilter()
   hipass.type = 'highpass'
-  hipass.frequency.value = 1500 + Math.random() * 3500
-  hipass.Q.value = 0.5 + Math.random() * 1.0
+  hipass.frequency.value = 800 + Math.random() * 1700
+  hipass.Q.value = 0.4 + Math.random() * 0.6
 
-  // Higher bandpass for click focus (3000-8000Hz)
+  // Bandpass for click focus (1500-4000Hz) - lowered range
   const bandpass = ctx.createBiquadFilter()
   bandpass.type = 'bandpass'
-  bandpass.frequency.value = 3000 + Math.random() * 5000
-  bandpass.Q.value = 1 + Math.random() * 2
+  bandpass.frequency.value = 1500 + Math.random() * 2500
+  bandpass.Q.value = 0.8 + Math.random() * 1.5
+
+  // Lowpass to soften and push back in mix
+  const lowpass = ctx.createBiquadFilter()
+  lowpass.type = 'lowpass'
+  lowpass.frequency.value = 2000 + Math.random() * 1000
+  lowpass.Q.value = 0.5
 
   // Stereo panning with randomization
   const panner = ctx.createStereoPanner()
   panner.pan.value = (x - 0.5) * 1.6 + (Math.random() - 0.5) * 0.3
 
-  // Connect: source -> hipass -> bandpass -> envelope -> panner
+  // Connect: source -> hipass -> bandpass -> lowpass -> envelope -> panner
   source.connect(hipass)
   hipass.connect(bandpass)
-  bandpass.connect(envelope)
+  bandpass.connect(lowpass)
+  lowpass.connect(envelope)
   envelope.connect(panner)
   
   // Route through drops volume control

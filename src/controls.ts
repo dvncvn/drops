@@ -4,7 +4,9 @@
 
 import { config } from './config'
 import { setDitherSize } from './renderer'
-import { setRainVolume, setDropsVolume, setFrogVolume } from './audio/engine'
+import { setRainVolume, setDropsVolume, 
+  setThunderVolume, setCricketsVolume, setWindGustVolume, setDripsVolume, setInsectsVolume 
+} from './audio/engine'
 
 // Theme state
 let currentTheme: 'dark' | 'light' = 'dark'
@@ -53,11 +55,30 @@ export function initControls(): void {
     setDropsVolume(value)
   })
 
-  // Frog volume slider
-  const frogVolumeSlider = document.getElementById('frog-volume-slider') as HTMLInputElement
-  frogVolumeSlider.addEventListener('input', () => {
-    const value = parseInt(frogVolumeSlider.value, 10) / 100
-    setFrogVolume(value)
+  // Ambience sliders
+  const thunderSlider = document.getElementById('thunder-slider') as HTMLInputElement
+  thunderSlider.addEventListener('input', () => {
+    setThunderVolume(parseInt(thunderSlider.value, 10) / 100)
+  })
+
+  const cricketsSlider = document.getElementById('crickets-slider') as HTMLInputElement
+  cricketsSlider.addEventListener('input', () => {
+    setCricketsVolume(parseInt(cricketsSlider.value, 10) / 100)
+  })
+
+  const windGustSlider = document.getElementById('wind-gust-slider') as HTMLInputElement
+  windGustSlider.addEventListener('input', () => {
+    setWindGustVolume(parseInt(windGustSlider.value, 10) / 100)
+  })
+
+  const dripsSlider = document.getElementById('drips-slider') as HTMLInputElement
+  dripsSlider.addEventListener('input', () => {
+    setDripsVolume(parseInt(dripsSlider.value, 10) / 100)
+  })
+
+  const insectsSlider = document.getElementById('insects-slider') as HTMLInputElement
+  insectsSlider.addEventListener('input', () => {
+    setInsectsVolume(parseInt(insectsSlider.value, 10) / 100)
   })
 
   // Reseed button

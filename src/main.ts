@@ -11,7 +11,7 @@ import { renderBackground, renderRipples, applyDither, resetShimmer } from './re
 import { initAudio, resumeAudio, isAudioReady } from './audio/engine'
 import { initControls, toggleSidebar, toggleTheme } from './controls'
 import { initRain, updateRain, stopRain } from './audio/rain'
-import { initFrog, stopFrog } from './audio/frog'
+import { initAmbience, stopAmbience } from './audio/ambience'
 import { playDropSound, playDripSound } from './audio/transient'
 import { reseedNoise } from './utils'
 import { config } from './config'
@@ -77,7 +77,7 @@ async function startAudio() {
   if (!audioInitialized) {
     await initAudio()
     initRain()
-    initFrog()
+    initAmbience()
     audioInitialized = true
   }
   await resumeAudio()
@@ -98,7 +98,7 @@ function stop() {
     animationId = null
   }
   stopRain()
-  stopFrog()
+  stopAmbience()
 }
 
 // Toggle play/pause

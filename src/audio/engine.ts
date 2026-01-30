@@ -10,10 +10,16 @@ let reverbGain: GainNode | null = null
 let reverbNode: ConvolverNode | null = null
 let dryGain: GainNode | null = null
 
-// Separate gain nodes for rain bed, drop sounds, and frog
+// Separate gain nodes for rain bed and drop sounds
 let rainGain: GainNode | null = null
 let dropsGain: GainNode | null = null
-let frogGain: GainNode | null = null
+
+// Ambience gain nodes
+let thunderGain: GainNode | null = null
+let cricketsGain: GainNode | null = null
+let windGustGain: GainNode | null = null
+let dripsGain: GainNode | null = null
+let insectsGain: GainNode | null = null
 
 /**
  * Initialize audio engine (requires user gesture)
@@ -44,15 +50,28 @@ export async function initAudio(): Promise<void> {
   reverbGain.connect(reverbNode)
   reverbNode.connect(masterGain)
 
-  // Separate gain nodes for rain bed, drop sounds, and frog
+  // Separate gain nodes for rain bed and drop sounds
   rainGain = audioContext.createGain()
   rainGain.gain.value = config.rainVolume
   
   dropsGain = audioContext.createGain()
   dropsGain.gain.value = config.dropsVolume
   
-  frogGain = audioContext.createGain()
-  frogGain.gain.value = config.frogVolume
+  // Ambience gain nodes
+  thunderGain = audioContext.createGain()
+  thunderGain.gain.value = config.thunderVolume
+  
+  cricketsGain = audioContext.createGain()
+  cricketsGain.gain.value = config.cricketsVolume
+  
+  windGustGain = audioContext.createGain()
+  windGustGain.gain.value = config.windGustVolume
+  
+  dripsGain = audioContext.createGain()
+  dripsGain.gain.value = config.dripsVolume
+  
+  insectsGain = audioContext.createGain()
+  insectsGain.gain.value = config.insectsVolume
 }
 
 /**
@@ -178,18 +197,40 @@ export function setDropsVolume(volume: number): void {
   }
 }
 
-/**
- * Get frog gain node
- */
-export function getFrogGain(): GainNode | null {
-  return frogGain
+// Ambience gain getters
+export function getThunderGain(): GainNode | null { return thunderGain }
+export function getCricketsGain(): GainNode | null { return cricketsGain }
+export function getWindGustGain(): GainNode | null { return windGustGain }
+export function getDripsGain(): GainNode | null { return dripsGain }
+export function getInsectsGain(): GainNode | null { return insectsGain }
+
+// Ambience volume setters
+export function setThunderVolume(volume: number): void {
+  if (thunderGain && audioContext) {
+    thunderGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+  }
 }
 
-/**
- * Set frog volume (0-1)
- */
-export function setFrogVolume(volume: number): void {
-  if (frogGain && audioContext) {
-    frogGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+export function setCricketsVolume(volume: number): void {
+  if (cricketsGain && audioContext) {
+    cricketsGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+  }
+}
+
+export function setWindGustVolume(volume: number): void {
+  if (windGustGain && audioContext) {
+    windGustGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+  }
+}
+
+export function setDripsVolume(volume: number): void {
+  if (dripsGain && audioContext) {
+    dripsGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
+  }
+}
+
+export function setInsectsVolume(volume: number): void {
+  if (insectsGain && audioContext) {
+    insectsGain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
   }
 }
