@@ -6,13 +6,14 @@
 import { createCanvas } from './canvas'
 import { updateState, addImpulse, resetState } from './state'
 import { updateWind, resetWind } from './wind'
-import { initRipplePool, updateRipples, getActiveRipples, spawnClickRipple, clearRipples } from './ripple'
+import { initRipplePool, updateRipples, getActiveRipples, spawnClickRipple, clearRipples, setAmbientSpawnCallback } from './ripple'
 import { renderBackground, renderRipples, applyDither, resetShimmer } from './renderer'
 import { initAudio, resumeAudio, isAudioReady } from './audio/engine'
 import { initControls, toggleSidebar, toggleTheme } from './controls'
 import { initRain, updateRain, stopRain } from './audio/rain'
-import { playDropSound } from './audio/transient'
+import { playDropSound, playDripSound } from './audio/transient'
 import { reseedNoise } from './utils'
+import { config } from './config'
 
 // State
 let isPlaying = false
@@ -188,6 +189,13 @@ window.addEventListener('drops:reseed', reseed)
 resize()
 initRipplePool()
 initControls()
+
+// Wire up ambient drip sounds
+setAmbientSpawnCallback((x, _y, width, _height) => {
+  if (isAudioReady() && Math.random() < config.dripChance) {
+    playDripSound(x / width)
+  }
+})
 
 // Render initial frame (static)
 renderBackground(ctx, window.innerWidth, window.innerHeight)

@@ -56,11 +56,11 @@ export function initRain(): void {
   noiseFilter.connect(noiseFilter2)
   noiseFilter2.connect(noiseGain)
   
-  // Split to dry and reverb
+  // Split to dry and reverb (kept subtle as background texture)
   const drySend = ctx.createGain()
-  drySend.gain.value = 0.7
+  drySend.gain.value = 0.4
   const reverbSend = ctx.createGain()
-  reverbSend.gain.value = 0.5
+  reverbSend.gain.value = 0.3
   
   noiseGain.connect(drySend)
   noiseGain.connect(reverbSend)

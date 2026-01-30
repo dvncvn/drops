@@ -22,8 +22,10 @@ export const config = {
 
   // Audio
   masterVolume: 0.5,
-  audioGainRange: { min: 0.1, max: 0.6 },
+  audioGainRange: { min: 0.02, max: 0.15 },  // reduced from 0.1-0.6
   rainFilterFreq: { min: 2000, max: 8000 },
+  dripVolume: 0.25,                          // volume for ambient drip sounds
+  dripChance: 0.4,                           // chance to play sound per ambient ripple
 
   // Performance
   maxDPR: 2,

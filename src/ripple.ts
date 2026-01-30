@@ -24,6 +24,18 @@ export interface Ripple {
 const pool: Ripple[] = []
 let spawnAccumulator = 0
 
+// Callback for when ambient ripple spawns (for audio)
+let onAmbientSpawn: ((x: number, y: number, width: number, height: number) => void) | null = null
+
+/**
+ * Set callback for ambient ripple spawn events
+ */
+export function setAmbientSpawnCallback(
+  callback: (x: number, y: number, width: number, height: number) => void
+): void {
+  onAmbientSpawn = callback
+}
+
 /**
  * Initialize the ripple pool
  */
@@ -124,6 +136,11 @@ function spawnAmbientRipple(width: number, height: number): void {
   ripple.windOffsetY = 0
   ripple.isClick = false
   ripple.active = true
+
+  // Notify for audio (with chance check done by caller)
+  if (onAmbientSpawn) {
+    onAmbientSpawn(ripple.x, ripple.y, width, height)
+  }
 }
 
 /**
