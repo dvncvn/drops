@@ -60,9 +60,11 @@ export function playDropSound(x: number): void {
   lowpass.frequency.value = 2500
   lowpass.Q.value = 0.7
 
-  // Stereo panning based on click position
+  // Stereo panning with random variation
   const panner = ctx.createStereoPanner()
-  panner.pan.value = (x - 0.5) * 1.4
+  const basePan = (x - 0.5) * 1.2
+  const randomPan = (Math.random() - 0.5) * 0.8
+  panner.pan.value = Math.max(-1, Math.min(1, basePan + randomPan))
 
   // Connect: source -> hipass -> bandpass -> lowpass -> envelope -> panner
   source.connect(hipass)
@@ -152,9 +154,11 @@ export function playDripSound(x: number): void {
   lowpass.frequency.value = 2000 + Math.random() * 1000
   lowpass.Q.value = 0.5
 
-  // Stereo panning with randomization
+  // Stereo panning with wide random spread
   const panner = ctx.createStereoPanner()
-  panner.pan.value = (x - 0.5) * 1.6 + (Math.random() - 0.5) * 0.3
+  const basePan = (x - 0.5) * 0.8
+  const randomPan = (Math.random() - 0.5) * 1.4
+  panner.pan.value = Math.max(-1, Math.min(1, basePan + randomPan))
 
   // Connect: source -> hipass -> bandpass -> lowpass -> envelope -> panner
   source.connect(hipass)
