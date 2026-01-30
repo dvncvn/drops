@@ -6,7 +6,7 @@ import { getAudioContext, getDryNode, getReverbNode, getDropsGain } from './engi
 import { config } from '../config'
 
 /**
- * Play a water drop transient sound at position
+ * Play a water drop click sound at position
  * @param x - normalized x position (0-1) for panning
  */
 export function playDropSound(x: number): void {
@@ -18,61 +18,51 @@ export function playDropSound(x: number): void {
 
   const now = ctx.currentTime
 
-  // Create a short noise burst
-  const bufferSize = Math.floor(ctx.sampleRate * 0.08) // 80ms
+  // Very short click - 20ms
+  const duration = 0.02
+  const bufferSize = Math.floor(ctx.sampleRate * duration)
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
   const data = buffer.getChannelData(0)
 
-  // Fill with noise
+  // Sparse impulse pattern for click texture
   for (let i = 0; i < bufferSize; i++) {
-    data[i] = Math.random() * 2 - 1
+    if (Math.random() < 0.4) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize)
+    } else {
+      data[i] = 0
+    }
   }
 
   const source = ctx.createBufferSource()
   source.buffer = buffer
 
-  // Envelope for the burst
+  // Very fast envelope for click
   const envelope = ctx.createGain()
   envelope.gain.setValueAtTime(0, now)
-  envelope.gain.linearRampToValueAtTime(0.3, now + 0.003) // fast attack
-  envelope.gain.exponentialRampToValueAtTime(0.001, now + 0.06) // quick decay
+  envelope.gain.linearRampToValueAtTime(0.4, now + 0.001) // instant attack
+  envelope.gain.exponentialRampToValueAtTime(0.001, now + duration)
 
-  // Low-pass filter for water character
-  const filter = ctx.createBiquadFilter()
-  filter.type = 'lowpass'
-  filter.frequency.setValueAtTime(2000, now)
-  filter.frequency.exponentialRampToValueAtTime(400, now + 0.05)
-  filter.Q.value = 2
+  // Highpass for click character (remove low end)
+  const hipass = ctx.createBiquadFilter()
+  hipass.type = 'highpass'
+  hipass.frequency.value = 2000
+  hipass.Q.value = 0.7
 
-  // Subtle pitch component (sine wave "plop")
-  const osc = ctx.createOscillator()
-  osc.type = 'sine'
-  osc.frequency.setValueAtTime(400, now)
-  osc.frequency.exponentialRampToValueAtTime(100, now + 0.04)
-
-  const oscGain = ctx.createGain()
-  oscGain.gain.setValueAtTime(0.15, now)
-  oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05)
+  // Bandpass to focus the click
+  const bandpass = ctx.createBiquadFilter()
+  bandpass.type = 'bandpass'
+  bandpass.frequency.value = 4000 + Math.random() * 2000
+  bandpass.Q.value = 1.5
 
   // Stereo panning based on click position
   const panner = ctx.createStereoPanner()
-  panner.pan.value = (x - 0.5) * 1.4 // spread across stereo field
+  panner.pan.value = (x - 0.5) * 1.4
 
-  // Mix node
-  const mix = ctx.createGain()
-  mix.gain.value = 1
-
-  // Connect noise path
-  source.connect(filter)
-  filter.connect(envelope)
-  envelope.connect(mix)
-
-  // Connect oscillator path
-  osc.connect(oscGain)
-  oscGain.connect(mix)
-
-  // Connect to output with panning
-  mix.connect(panner)
+  // Connect: source -> hipass -> bandpass -> envelope -> panner
+  source.connect(hipass)
+  hipass.connect(bandpass)
+  bandpass.connect(envelope)
+  envelope.connect(panner)
   
   // Route through drops volume control
   const dropsVol = getDropsGain()
@@ -81,9 +71,9 @@ export function playDropSound(x: number): void {
     
     // Split to dry and reverb
     const drySend = ctx.createGain()
-    drySend.gain.value = 0.6
+    drySend.gain.value = 0.7
     const reverbSend = ctx.createGain()
-    reverbSend.gain.value = 0.8 // more reverb on drops
+    reverbSend.gain.value = 0.5
     
     dropsVol.connect(drySend)
     dropsVol.connect(reverbSend)
@@ -91,16 +81,13 @@ export function playDropSound(x: number): void {
     reverbSend.connect(reverb)
   }
 
-  // Start and stop
   source.start(now)
-  source.stop(now + 0.08)
-  osc.start(now)
-  osc.stop(now + 0.06)
+  source.stop(now + duration + 0.01)
 }
 
 /**
- * Play a light drip/crackle sound for ambient rain drops
- * Each drop has randomized filter/envelope values for natural variation
+ * Play a light click sound for ambient rain drops
+ * Each drop has randomized filter values for natural variation
  * @param x - normalized x position (0-1) for panning
  */
 export function playDripSound(x: number): void {
@@ -112,17 +99,17 @@ export function playDripSound(x: number): void {
 
   const now = ctx.currentTime
   
-  // Randomize volume per drop (±40% from base)
-  const volume = config.dripVolume * (0.6 + Math.random() * 0.8)
+  // Randomize volume per drop
+  const volume = config.dripVolume * (0.5 + Math.random() * 1.0)
 
-  // Variable duration - 10-50ms for different drop sizes
-  const duration = 0.01 + Math.random() * 0.04
+  // Short click duration - 5-20ms
+  const duration = 0.005 + Math.random() * 0.015
   const bufferSize = Math.floor(ctx.sampleRate * duration)
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
   const data = buffer.getChannelData(0)
 
-  // Variable sparse density (15-45%) for different textures
-  const sparsity = 0.15 + Math.random() * 0.3
+  // Sparse impulse pattern (20-50%) for click texture
+  const sparsity = 0.2 + Math.random() * 0.3
   for (let i = 0; i < bufferSize; i++) {
     if (Math.random() < sparsity) {
       data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize)
@@ -134,58 +121,33 @@ export function playDripSound(x: number): void {
   const source = ctx.createBufferSource()
   source.buffer = buffer
 
-  // Variable attack time (0.5-3ms)
-  const attackTime = 0.0005 + Math.random() * 0.0025
+  // Instant attack for click
   const envelope = ctx.createGain()
   envelope.gain.setValueAtTime(0, now)
-  envelope.gain.linearRampToValueAtTime(volume, now + attackTime)
+  envelope.gain.linearRampToValueAtTime(volume, now + 0.0005)
   envelope.gain.exponentialRampToValueAtTime(0.001, now + duration)
 
-  // Widely varied highpass (400-2500Hz) - lower = deeper drops
+  // Higher highpass for click (1500-5000Hz)
   const hipass = ctx.createBiquadFilter()
   hipass.type = 'highpass'
-  hipass.frequency.value = 400 + Math.random() * 2100
-  hipass.Q.value = 0.3 + Math.random() * 1.2
+  hipass.frequency.value = 1500 + Math.random() * 3500
+  hipass.Q.value = 0.5 + Math.random() * 1.0
 
-  // Widely varied bandpass (1000-6000Hz) with variable Q
+  // Higher bandpass for click focus (3000-8000Hz)
   const bandpass = ctx.createBiquadFilter()
   bandpass.type = 'bandpass'
-  bandpass.frequency.value = 1000 + Math.random() * 5000
-  bandpass.Q.value = 0.5 + Math.random() * 3
-
-  // Variable pitch component (400-1800Hz base)
-  const osc = ctx.createOscillator()
-  osc.type = 'sine'
-  const baseFreq = 400 + Math.random() * 1400
-  const freqDecay = 0.2 + Math.random() * 0.4  // how much pitch drops
-  const pitchTime = 0.01 + Math.random() * 0.03
-  osc.frequency.setValueAtTime(baseFreq, now)
-  osc.frequency.exponentialRampToValueAtTime(baseFreq * freqDecay, now + pitchTime)
-
-  // Variable oscillator mix (some drops more tonal, some more noisy)
-  const oscMix = 0.03 + Math.random() * 0.12
-  const oscGain = ctx.createGain()
-  oscGain.gain.setValueAtTime(volume * oscMix, now)
-  oscGain.gain.exponentialRampToValueAtTime(0.001, now + pitchTime)
+  bandpass.frequency.value = 3000 + Math.random() * 5000
+  bandpass.Q.value = 1 + Math.random() * 2
 
   // Stereo panning with randomization
   const panner = ctx.createStereoPanner()
   panner.pan.value = (x - 0.5) * 1.6 + (Math.random() - 0.5) * 0.3
 
-  const mix = ctx.createGain()
-  mix.gain.value = 1
-
-  // Connect noise path
+  // Connect: source -> hipass -> bandpass -> envelope -> panner
   source.connect(hipass)
   hipass.connect(bandpass)
   bandpass.connect(envelope)
-  envelope.connect(mix)
-
-  // Connect oscillator path
-  osc.connect(oscGain)
-  oscGain.connect(mix)
-
-  mix.connect(panner)
+  envelope.connect(panner)
   
   // Route through drops volume control
   const dropsVol = getDropsGain()
@@ -193,8 +155,8 @@ export function playDripSound(x: number): void {
     panner.connect(dropsVol)
     
     // Variable reverb amount per drop
-    const dryAmount = 0.6 + Math.random() * 0.4
-    const reverbAmount = 0.1 + Math.random() * 0.3
+    const dryAmount = 0.7 + Math.random() * 0.3
+    const reverbAmount = 0.15 + Math.random() * 0.25
     
     const drySend = ctx.createGain()
     drySend.gain.value = dryAmount
@@ -209,6 +171,4 @@ export function playDripSound(x: number): void {
 
   source.start(now)
   source.stop(now + duration + 0.01)
-  osc.start(now)
-  osc.stop(now + pitchTime + 0.01)
 }
