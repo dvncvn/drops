@@ -10,7 +10,8 @@ import { initRipplePool, updateRipples, getActiveRipples, spawnClickRipple, clea
 import { renderBackground, renderRipples, applyDither, resetShimmer } from './renderer'
 import { initAudio, resumeAudio, isAudioReady } from './audio/engine'
 import { initControls, toggleSidebar, toggleTheme } from './controls'
-import { initRain, updateRain, stopRain } from './audio/rain'
+import { initRain, updateRain, stopRain, updateWindModulation, triggerClickExcitation } from './audio/rain'
+import { getWindStrength } from './wind'
 import { initAmbience, stopAmbience } from './audio/ambience'
 import { playDropSound, playDripSound } from './audio/transient'
 import { reseedNoise } from './utils'
@@ -50,6 +51,8 @@ function render(time: number) {
   // Update audio
   if (isAudioReady()) {
     updateRain()
+    // Update resonator wind modulation
+    updateWindModulation(getWindStrength())
   }
 
   // Render
@@ -135,6 +138,7 @@ function skipIntro(clickX?: number, clickY?: number) {
       spawnClickRipple(clickX, clickY)
       if (isAudioReady()) {
         playDropSound(clickX / window.innerWidth)
+        triggerClickExcitation()
       }
     }
   }, 300)
@@ -159,10 +163,11 @@ canvas.addEventListener('click', (e) => {
   // Spawn click ripple
   spawnClickRipple(e.clientX, e.clientY)
 
-  // Play drop sound
+  // Play drop sound and trigger resonator excitation
   if (isAudioReady()) {
     const x = e.clientX / window.innerWidth
     playDropSound(x)
+    triggerClickExcitation()
   }
 })
 

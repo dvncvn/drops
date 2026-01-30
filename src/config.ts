@@ -29,6 +29,39 @@ export const config = {
   dripVolume: 0.25,                          // base volume for ambient drip sounds
   dripChance: 1.0,                           // 100% - every ripple makes a sound
   
+  // Resonator ("puddle sings") - tonal presence from rain
+  resonator: {
+    // Wet/dry mix
+    baseWetMix: 0.05,                        // wet mix at baseline intensity
+    maxWetMix: 0.35,                         // wet mix at peak intensity
+    
+    // Resonator frequencies (D-A-E voicing across octaves)
+    frequencies: [
+      73.42,   // D2
+      110,     // A2
+      146.83,  // D3
+      164.81,  // E3
+      220,     // A3
+    ],
+    
+    // Q (resonance) settings
+    baseQ: 15,                               // Q at baseline
+    maxQ: 35,                                // Q at peak intensity
+    
+    // Click excitation
+    clickExciteGain: 0.4,                    // extra wet gain on click
+    clickDecayMs: 500,                       // decay time for click excitation
+    clickQBoost: 8,                          // temporary Q increase on click
+    
+    // Wind modulation
+    windDetunePctMax: 1.5,                   // max detune as percentage (±1.5%)
+    windLfoRateHz: 0.08,                     // how fast wind modulates frequencies
+    
+    // Safety/limiting
+    wetHighCut: 3500,                        // lowpass on wet path to avoid piercing
+    compThreshold: -12,                      // compressor threshold on wet bus
+  },
+  
   // Ambience volumes (all start at 0)
   thunderVolume: 0,
   cricketsVolume: 0,
