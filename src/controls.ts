@@ -3,7 +3,7 @@
  */
 
 import { config } from './config'
-import { setDitherSize } from './renderer'
+import { setDitherSize, setSurfaceIntensity } from './renderer'
 import { setRainVolume, setDropsVolume, 
   setThunderVolume, setCricketsVolume, setWindGustVolume, setDripsVolume 
 } from './audio/engine'
@@ -32,6 +32,15 @@ export function initControls(): void {
     const value = parseInt(windSlider.value, 10) / 100
     config.windStrength = value
   })
+
+  // Surface slider (water surface undulations)
+  const surfaceSlider = document.getElementById('surface-slider') as HTMLInputElement
+  surfaceSlider.addEventListener('input', () => {
+    const value = parseInt(surfaceSlider.value, 10) / 100
+    setSurfaceIntensity(value)
+  })
+  // Initialize
+  setSurfaceIntensity(parseInt(surfaceSlider.value, 10) / 100)
 
   // Resonance slider (Q / ring amount on drops)
   const resonanceSlider = document.getElementById('resonance-slider') as HTMLInputElement

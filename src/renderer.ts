@@ -4,6 +4,7 @@
  */
 
 import type { Ripple } from './ripple'
+import { noise2D } from './utils'
 
 // Theme colors
 const DARK_BG = { r: 10, g: 10, b: 12 }
@@ -29,6 +30,10 @@ function getColors(): { bg: typeof DARK_BG; fg: typeof DARK_FG } {
 
 // Dither settings
 let ditherSize = 8 // pixel size for dithering (0 = off, 4, 8, 12)
+
+// Surface ripple settings
+let surfaceTime = 0
+let surfaceIntensity = 0.3  // 0-1, controlled by slider
 
 // 4x4 Bayer matrix (values 0-15, normalized to 0-1)
 const BAYER_4 = [
@@ -61,6 +66,67 @@ export function renderBackground(
   const { bg } = getColors()
   ctx.fillStyle = `rgb(${bg.r}, ${bg.g}, ${bg.b})`
   ctx.fillRect(0, 0, width, height)
+}
+
+/**
+ * Update surface animation time
+ */
+export function updateSurface(delta: number): void {
+  surfaceTime += delta * 0.3  // Slow movement
+}
+
+/**
+ * Set surface ripple intensity
+ */
+export function setSurfaceIntensity(value: number): void {
+  surfaceIntensity = value
+}
+
+/**
+ * Render subtle surface undulations
+ */
+export function renderSurface(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number
+): void {
+  if (surfaceIntensity < 0.01) return
+
+  const { fg } = getColors()
+  const pixelSize = 2
+  const spacing = 40  // Distance between wave lines
+  const waveCount = Math.ceil(height / spacing) + 2
+
+  ctx.fillStyle = `rgb(${fg.r}, ${fg.g}, ${fg.b})`
+
+  // Draw horizontal wave lines
+  for (let i = 0; i < waveCount; i++) {
+    const baseY = (i * spacing + surfaceTime * 20) % (height + spacing) - spacing / 2
+    
+    // Draw segmented wavy line
+    for (let x = 0; x < width; x += pixelSize * 3) {
+      // Use noise for wave shape
+      const noiseVal = noise2D(x * 0.008 + surfaceTime * 0.5, i * 0.5 + surfaceTime * 0.2)
+      const yOffset = noiseVal * 15
+      
+      // Fade based on noise for broken line effect
+      const fadeNoise = noise2D(x * 0.02 + i * 10, surfaceTime * 0.3)
+      if (fadeNoise < 0.3) continue  // Skip some segments
+      
+      const y = baseY + yOffset
+      if (y < 0 || y > height) continue
+      
+      // Very subtle opacity
+      const opacity = surfaceIntensity * 0.08 * (0.5 + fadeNoise * 0.5)
+      ctx.globalAlpha = opacity
+      
+      const snapX = Math.floor(x / pixelSize) * pixelSize
+      const snapY = Math.floor(y / pixelSize) * pixelSize
+      ctx.fillRect(snapX, snapY, pixelSize, pixelSize)
+    }
+  }
+
+  ctx.globalAlpha = 1
 }
 
 /**

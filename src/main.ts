@@ -7,7 +7,7 @@ import { createCanvas } from './canvas'
 import { updateState, addImpulse, resetState } from './state'
 import { updateWind, resetWind } from './wind'
 import { initRipplePool, updateRipples, getActiveRipples, spawnClickRipple, clearRipples, setAmbientSpawnCallback } from './ripple'
-import { renderBackground, renderRipples, applyDither, resetShimmer } from './renderer'
+import { renderBackground, renderRipples, applyDither, resetShimmer, updateSurface, renderSurface } from './renderer'
 import { initAudio, resumeAudio, isAudioReady } from './audio/engine'
 import { initControls, toggleSidebar, toggleTheme } from './controls'
 import { initRain, updateRain, stopRain } from './audio/rain'
@@ -46,6 +46,7 @@ function render(time: number) {
   updateState(delta)
   updateWind(delta)
   updateRipples(delta, window.innerWidth, window.innerHeight)
+  updateSurface(delta)
   
   // Update audio
   if (isAudioReady()) {
@@ -54,6 +55,7 @@ function render(time: number) {
 
   // Render
   renderBackground(ctx, window.innerWidth, window.innerHeight)
+  renderSurface(ctx, window.innerWidth, window.innerHeight)
   renderRipples(ctx, getActiveRipples())
   
   // Apply dithering effect (uses canvas dimensions for pixel processing)
