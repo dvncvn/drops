@@ -31,9 +31,9 @@ export const config = {
   
   // Resonator ("puddle sings") - tonal presence from rain
   resonator: {
-    // Wet/dry mix (clicks are the main trigger, intensity is subtle bloom)
-    baseWetMix: 0.08,                        // very quiet at baseline
-    maxWetMix: 0.4,                          // modest at peak intensity
+    // Wet/dry mix (off by default, user can enable via sliders)
+    baseWetMix: 0,
+    maxWetMix: 0,
     
     // Resonator frequencies (pure A + E = perfect 5ths, very consonant)
     frequencies: [
@@ -45,8 +45,8 @@ export const config = {
     ],
     
     // Q (resonance) settings
-    baseQ: 30,                               // Q at baseline
-    maxQ: 60,                                // Q at peak intensity
+    baseQ: 5,                                // low Q when disabled
+    maxQ: 10,                                // low Q when disabled
     
     // Click excitation (main way resonance is heard)
     clickExciteGain: 1.0,                    // strong wet gain boost on click
