@@ -173,11 +173,11 @@ function playResonantPing(x: number, intensity: number): void {
   if (dropsVol) {
     panner.connect(dropsVol)
     
-    // Heavy reverb for resonant tones
+    // Light reverb - mostly dry for clarity
     const drySend = ctx.createGain()
-    drySend.gain.value = 0.3
+    drySend.gain.value = 0.8
     const reverbSend = ctx.createGain()
-    reverbSend.gain.value = 0.7
+    reverbSend.gain.value = 0.2
     
     dropsVol.connect(drySend)
     dropsVol.connect(reverbSend)
