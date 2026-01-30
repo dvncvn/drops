@@ -5,6 +5,18 @@
 import { getAudioContext, getDryNode, getReverbNode, getDropsGain } from './engine'
 import { config } from '../config'
 
+// Resonance settings (controlled by sliders)
+let resonanceQ = 0
+let resonanceMix = 0
+
+export function setDropResonanceQ(value: number): void {
+  resonanceQ = value
+}
+
+export function setDropResonanceMix(value: number): void {
+  resonanceMix = value
+}
+
 /**
  * Play a water drop click sound at position
  * @param x - normalized x position (0-1) for panning
@@ -92,6 +104,89 @@ export function playDropSound(x: number): void {
 
   source.start(now)
   source.stop(now + duration + 0.01)
+  
+  // Play resonant ping if enabled
+  if (resonanceMix > 0.01) {
+    playResonantPing(x, 0.8)
+  }
+}
+
+/**
+ * Play a resonant "ping" - a tonal bloom triggered by drops
+ * @param x - normalized x position for panning
+ * @param intensity - 0-1, affects volume and decay
+ */
+function playResonantPing(x: number, intensity: number): void {
+  const ctx = getAudioContext()
+  const dry = getDryNode()
+  const reverb = getReverbNode()
+  
+  if (!ctx || !dry || !reverb) return
+  if (resonanceMix < 0.01) return
+
+  const now = ctx.currentTime
+  const cfg = config.resonator
+  
+  // Pick a random frequency from the resonator set
+  const freq = cfg.frequencies[Math.floor(Math.random() * cfg.frequencies.length)]
+  
+  // Short noise burst to excite the resonator
+  const burstDuration = 0.015
+  const bufferSize = Math.floor(ctx.sampleRate * burstDuration)
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+  const data = buffer.getChannelData(0)
+  
+  // Dense noise burst
+  for (let i = 0; i < bufferSize; i++) {
+    const env = 1 - (i / bufferSize)
+    data[i] = (Math.random() * 2 - 1) * env
+  }
+  
+  const source = ctx.createBufferSource()
+  source.buffer = buffer
+  
+  // Resonator filter - high Q bandpass creates the tone
+  const resonator = ctx.createBiquadFilter()
+  resonator.type = 'bandpass'
+  resonator.frequency.value = freq
+  // Q from 20-80 based on slider (higher = more tonal ring)
+  resonator.Q.value = 20 + resonanceQ * 60
+  
+  // Decay envelope for the resonant ring
+  const ringDuration = 0.3 + resonanceQ * 0.5  // 300-800ms based on Q
+  const envelope = ctx.createGain()
+  const volume = resonanceMix * intensity * 0.4
+  envelope.gain.setValueAtTime(volume, now)
+  envelope.gain.exponentialRampToValueAtTime(0.001, now + ringDuration)
+  
+  // Stereo position
+  const panner = ctx.createStereoPanner()
+  panner.pan.value = Math.max(-1, Math.min(1, (x - 0.5) * 1.5))
+  
+  // Connect: source -> resonator -> envelope -> panner -> output
+  source.connect(resonator)
+  resonator.connect(envelope)
+  envelope.connect(panner)
+  
+  // Route through drops gain
+  const dropsVol = getDropsGain()
+  if (dropsVol) {
+    panner.connect(dropsVol)
+    
+    // Heavy reverb for resonant tones
+    const drySend = ctx.createGain()
+    drySend.gain.value = 0.3
+    const reverbSend = ctx.createGain()
+    reverbSend.gain.value = 0.7
+    
+    dropsVol.connect(drySend)
+    dropsVol.connect(reverbSend)
+    drySend.connect(dry)
+    reverbSend.connect(reverb)
+  }
+  
+  source.start(now)
+  source.stop(now + burstDuration)
 }
 
 /**
@@ -189,4 +284,9 @@ export function playDripSound(x: number): void {
 
   source.start(now)
   source.stop(now + duration + 0.01)
+  
+  // Play resonant ping if enabled (lower intensity for ambient drips)
+  if (resonanceMix > 0.01 && Math.random() < 0.3) {
+    playResonantPing(x, 0.4)
+  }
 }
