@@ -4,7 +4,7 @@
 
 import { config } from './config'
 import { setDitherSize, setSurfaceIntensity } from './renderer'
-import { setRainVolume, setDropsVolume, 
+import { setMasterVolume, setRainVolume, setDropsVolume, 
   setThunderVolume, setCricketsVolume, setWindGustVolume, setDripsVolume 
 } from './audio/engine'
 import { setDropResonanceQ, setDropResonanceMix, setReverbAmount, setDropBrightness } from './audio/transient'
@@ -68,6 +68,13 @@ export function initControls(): void {
   })
   // Initialize dither from default value
   setDitherSize(parseInt(ditherSelect.value, 10))
+
+  // Master volume slider
+  const masterVolumeSlider = document.getElementById('master-volume-slider') as HTMLInputElement
+  masterVolumeSlider.addEventListener('input', () => {
+    const value = parseInt(masterVolumeSlider.value, 10) / 100
+    setMasterVolume(value)
+  })
 
   // Rain volume slider
   const rainVolumeSlider = document.getElementById('rain-volume-slider') as HTMLInputElement
