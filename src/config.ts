@@ -31,32 +31,31 @@ export const config = {
   
   // Resonator ("puddle sings") - tonal presence from rain
   resonator: {
-    // Wet/dry mix
-    baseWetMix: 0.2,                         // wet mix at baseline intensity
-    maxWetMix: 0.8,                          // wet mix at peak intensity
+    // Wet/dry mix (clicks are the main trigger, intensity is subtle bloom)
+    baseWetMix: 0.08,                        // very quiet at baseline
+    maxWetMix: 0.4,                          // modest at peak intensity
     
-    // Resonator frequencies (D-A-E voicing across octaves, including higher partials)
+    // Resonator frequencies (pure A + E = perfect 5ths, very consonant)
     frequencies: [
       110,     // A2
-      146.83,  // D3
+      165,     // E3 (5th above A2)
       220,     // A3
-      293.66,  // D4
+      330,     // E4 (5th above A3)
       440,     // A4
-      587.33,  // D5
     ],
     
     // Q (resonance) settings
     baseQ: 30,                               // Q at baseline
     maxQ: 60,                                // Q at peak intensity
     
-    // Click excitation
-    clickExciteGain: 0.6,                    // extra wet gain on click
-    clickDecayMs: 600,                       // decay time for click excitation
-    clickQBoost: 15,                         // temporary Q increase on click
+    // Click excitation (main way resonance is heard)
+    clickExciteGain: 1.0,                    // strong wet gain boost on click
+    clickDecayMs: 800,                       // longer decay for more audible ring
+    clickQBoost: 25,                         // bigger Q spike on click
     
-    // Wind modulation
-    windDetunePctMax: 2.0,                   // max detune as percentage (±2%)
-    windLfoRateHz: 0.08,                     // how fast wind modulates frequencies
+    // Wind modulation (subtle drift only, not the main driver)
+    windDetunePctMax: 0.5,                   // very subtle detune (±0.5%)
+    windLfoRateHz: 0.03,                     // slower modulation
     
     // Safety/limiting
     wetHighCut: 5000,                        // lowpass on wet path to avoid piercing

@@ -276,22 +276,36 @@ export function triggerClickExcitation(): void {
     clearTimeout(exciteDecayTimeout)
   }
 
-  // Fast attack: boost excitation gain
+  // Fast attack: boost excitation gain AND wet mix
   exciteGain.gain.cancelScheduledValues(now)
   exciteGain.gain.setValueAtTime(exciteGain.gain.value, now)
-  exciteGain.gain.linearRampToValueAtTime(1 + cfg.clickExciteGain, now + 0.015)
+  exciteGain.gain.linearRampToValueAtTime(1 + cfg.clickExciteGain, now + 0.01)
 
-  // Briefly boost Q on all resonators
+  // Also boost wet mix directly for more audible resonance
+  if (wetGain) {
+    wetGain.gain.cancelScheduledValues(now)
+    wetGain.gain.setValueAtTime(wetGain.gain.value, now)
+    wetGain.gain.linearRampToValueAtTime(cfg.maxWetMix * 2.5, now + 0.01)
+  }
+
+  // Briefly boost Q on all resonators for more ring
   for (const resonator of resonators) {
     const currentQ = resonator.Q.value
     resonator.Q.cancelScheduledValues(now)
     resonator.Q.setValueAtTime(currentQ, now)
-    resonator.Q.linearRampToValueAtTime(currentQ + cfg.clickQBoost, now + 0.02)
+    resonator.Q.linearRampToValueAtTime(currentQ + cfg.clickQBoost, now + 0.015)
   }
 
   // Decay back to normal
   const decayTime = cfg.clickDecayMs / 1000
   exciteGain.gain.setTargetAtTime(1.0, now + 0.02, decayTime / 3)
+  
+  // Decay wet mix back
+  if (wetGain) {
+    const intensity = getIntensity()
+    const normalWet = lerp(cfg.baseWetMix, cfg.maxWetMix, intensity)
+    wetGain.gain.setTargetAtTime(normalWet, now + 0.02, decayTime / 2)
+  }
 
   // Reset Q after decay
   exciteDecayTimeout = window.setTimeout(() => {
