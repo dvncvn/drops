@@ -7,7 +7,7 @@ import { setDitherSize } from './renderer'
 import { setRainVolume, setDropsVolume, 
   setThunderVolume, setCricketsVolume, setWindGustVolume, setDripsVolume 
 } from './audio/engine'
-import { setDropResonanceQ, setDropResonanceMix } from './audio/transient'
+import { setDropResonanceQ, setDropResonanceMix, setReverbAmount } from './audio/transient'
 
 // Theme state
 let currentTheme: 'dark' | 'light' = 'dark'
@@ -73,6 +73,15 @@ export function initControls(): void {
     const value = parseInt(dropsVolumeSlider.value, 10) / 100
     setDropsVolume(value)
   })
+
+  // Reverb slider
+  const reverbSlider = document.getElementById('reverb-slider') as HTMLInputElement
+  reverbSlider.addEventListener('input', () => {
+    const value = parseInt(reverbSlider.value, 10) / 100
+    setReverbAmount(value)
+  })
+  // Initialize
+  setReverbAmount(parseInt(reverbSlider.value, 10) / 100)
 
   // Ambience sliders
   const thunderSlider = document.getElementById('thunder-slider') as HTMLInputElement

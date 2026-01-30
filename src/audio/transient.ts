@@ -8,6 +8,7 @@ import { config } from '../config'
 // Resonance settings (controlled by sliders)
 let resonanceQ = 0
 let resonanceMix = 0
+let reverbAmount = 0.2
 
 export function setDropResonanceQ(value: number): void {
   resonanceQ = value
@@ -15,6 +16,10 @@ export function setDropResonanceQ(value: number): void {
 
 export function setDropResonanceMix(value: number): void {
   resonanceMix = value
+}
+
+export function setReverbAmount(value: number): void {
+  reverbAmount = value
 }
 
 /**
@@ -90,11 +95,11 @@ export function playDropSound(x: number): void {
   if (dropsVol) {
     panner.connect(dropsVol)
     
-    // Split to dry and reverb
+    // Reverb controlled by slider
     const drySend = ctx.createGain()
-    drySend.gain.value = 0.7
+    drySend.gain.value = 1 - reverbAmount * 0.3
     const reverbSend = ctx.createGain()
-    reverbSend.gain.value = 0.5
+    reverbSend.gain.value = reverbAmount * 0.7
     
     dropsVol.connect(drySend)
     dropsVol.connect(reverbSend)
@@ -173,11 +178,11 @@ function playResonantPing(x: number, intensity: number): void {
   if (dropsVol) {
     panner.connect(dropsVol)
     
-    // Light reverb - mostly dry for clarity
+    // Reverb controlled by slider
     const drySend = ctx.createGain()
-    drySend.gain.value = 0.8
+    drySend.gain.value = 1 - reverbAmount * 0.5  // Keep some dry even at max reverb
     const reverbSend = ctx.createGain()
-    reverbSend.gain.value = 0.2
+    reverbSend.gain.value = reverbAmount
     
     dropsVol.connect(drySend)
     dropsVol.connect(reverbSend)
@@ -267,14 +272,11 @@ export function playDripSound(x: number): void {
   if (dropsVol) {
     panner.connect(dropsVol)
     
-    // Variable reverb amount per drop
-    const dryAmount = 0.7 + Math.random() * 0.3
-    const reverbAmount = 0.15 + Math.random() * 0.25
-    
+    // Reverb controlled by slider with slight random variation
     const drySend = ctx.createGain()
-    drySend.gain.value = dryAmount
+    drySend.gain.value = 1 - reverbAmount * 0.3
     const reverbSend = ctx.createGain()
-    reverbSend.gain.value = reverbAmount
+    reverbSend.gain.value = reverbAmount * (0.5 + Math.random() * 0.3)
     
     dropsVol.connect(drySend)
     dropsVol.connect(reverbSend)
