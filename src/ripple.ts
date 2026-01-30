@@ -147,14 +147,18 @@ function spawnAmbientRipple(width: number, height: number): void {
  * Update all ripples
  */
 export function updateRipples(delta: number, width: number, height: number): void {
-  // Spawn ambient ripples based on intensity
+  // Spawn ambient ripples based on intensity with irregular timing
   const intensity = getIntensity()
   const spawnRate = lerp(config.rippleSpawnRate.min, config.rippleSpawnRate.max, intensity)
   
   spawnAccumulator += delta * spawnRate
-  while (spawnAccumulator >= 1) {
+  
+  // Irregular threshold (0.6 - 1.4) makes timing unpredictable
+  const threshold = 0.6 + Math.random() * 0.8
+  while (spawnAccumulator >= threshold) {
     spawnAmbientRipple(width, height)
-    spawnAccumulator -= 1
+    // Subtract random amount (0.7 - 1.3) for further irregularity
+    spawnAccumulator -= 0.7 + Math.random() * 0.6
   }
 
   // Update existing ripples
